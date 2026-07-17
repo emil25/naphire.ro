@@ -1309,20 +1309,34 @@ async function mindenHirBetolt(){
   szerverTemak = null;
   const gyujto = [];
 
-  const osszesit = () => {
-    // duplikátumok kiszűrése cím alapján, időrendi sorrend
-    const latott = new Set();
-    const hirek = gyujto.filter(h => {
-      const kulcs = h.cim.toLowerCase();
-      if (latott.has(kulcs)) return false;
-      latott.add(kulcs);
-      return true;
-    });
-    hirek.sort((a,b) => b.datum - a.datum);
-    osszesHir = hirek;
-    gyorsitotarKorabol = null;
-    if (osszesHir.length)rajzol(); // már az első beérkező forrásnál megjelenik az oldal
-  };
+  const osszesit = (() => {
+    let elsoRajzolasVolt = false, idozito = null;
+    return () => {
+      // duplikátumok kiszűrése cím alapján, időrendi sorrend
+      const latott = new Set();
+      const hirek = gyujto.filter(h => {
+        const kulcs = h.cim.toLowerCase();
+        if (latott.has(kulcs)) return false;
+        latott.add(kulcs);
+        return true;
+      });
+      hirek.sort((a,b) => b.datum - a.datum);
+      osszesHir = hirek;
+      gyorsitotarKorabol = null;
+      if (!osszesHir.length) return;
+      if (!elsoRajzolasVolt){
+        // az első beérkező forrásnál azonnal megjelenik valami – gyors az érzet
+        elsoRajzolasVolt = true;
+        rajzol();
+        return;
+      }
+      // a további forrásoknál NEM rajzolunk újra azonnal minden egyes érkezéskor
+      // (12 forrás egyesével újrarajzolva "ugrálva" jelenne meg) – helyette összegyűjtjük
+      // egy rövid ideig, és csak egyszer, a végén frissítjük velük a képet
+      clearTimeout(idozito);
+      idozito = setTimeout(rajzol, 900);
+    };
+  })();
 
   const aktivForrasok = FORRASOK.filter(f => !BEALLITASOK.forrasokKi.includes(f.nev));
   const kesleltet = ms => new Promise(r => setTimeout(r, ms));
@@ -1636,11 +1650,12 @@ function napTemajaStabil(jelolt, nev, minForras, oraAblak){
   }
 
   const friss = napTemaja(jelolt, minForras, oraAblak);
-  // Új témát csak TELJES hírkészletből mentünk el – így nem az dönti el a nap témáját,
-  // hogy épp melyik forrás válaszolt elsőként az adott frissítéskor.
-  if (friss && hirBetoltesKesz)
-    temaMent(nev, { horgonyLink: friss.fo.link, kulcsszavak: friss.kulcsszavak, pont: friss.pont, mentveKor: most });
-  return hirBetoltesKesz ? friss : (ervenyes ? null : friss);
+  // Új témát csak TELJES hírkészletből mentünk el / mutatunk – így nem az dönti el
+  // a nap témáját, hogy épp melyik forrás válaszolt elsőként az adott frissítéskor,
+  // és nem villog/cserélődik a téma a szemünk előtt, míg a többi forrás beérkezik.
+  if (!hirBetoltesKesz) return null;
+  if (friss) temaMent(nev, { horgonyLink: friss.fo.link, kulcsszavak: friss.kulcsszavak, pont: friss.pont, mentveKor: most });
+  return friss;
 }
 
 /* admin által kézzel kiemelt téma – megkeresi hozzá az aktuális híranyagban a kapcsolódó
