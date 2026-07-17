@@ -1,17 +1,51 @@
-{
-  "tagline": "Erdélyi és magyarországi hírek",
-  "banners": {
-    "fejlec": { "kep": "", "link": "" },
-    "tartalom": { "kep": "", "link": "" },
-    "oldalsav": { "kep": "", "link": "" }
-  },
-  "kiemeltTema": {
-    "aktiv": false,
-    "cim": "",
-    "lead": "",
-    "kep": "",
-    "link": "",
-    "forras": ""
-  },
-  "forrasokKi": []
-}
+EGYSZERŰ FELTÖLTÉS – nincs mappa, nincs bonyolítás
+========================================================
+
+EBBEN A CSOMAGBAN CSAK 3 FÁJL VAN, EGY SZINTEN (nincs benne mappa):
+  index.html      <- a főoldal
+  admin.html      <- admin felület
+  settings.json   <- beállítások
+
+Ennyi. Nem kell "api" mappa, nem kell semmi bonyolult – a honlap
+a híreket közvetlenül a böngészőből tölti be, ahogy eddig is.
+
+------------------------------------------------------
+LÉPÉSRŐL LÉPÉSRE
+------------------------------------------------------
+
+1. ELŐSZÖR TAKARÍTS: nyisd meg a GitHub repódat, és töröld ki
+   MINDEN meglévő fájlt/mappát, ami most ott van (index.html,
+   admin.html, settings.json, hirek.js, download, vercel.json,
+   UTMUTATO.txt – mindent). Egyenként kattints rá, kuka ikon,
+   utána alul "Commit changes".
+
+   (Ha sok fájlt kell törölni és fárasztó egyenként, azt is
+   megteheted, hogy törlöd az egész repót, és csinálsz egy
+   vadonatúj, üres repót ugyanazzal a névvel.)
+
+2. Csomagold ki ezt a zip-et a géped egy mappájába.
+
+3. A GitHub repóban kattints a zöld "Add file" gombra, majd
+   "Upload files".
+
+4. A géped fájlkezelőjében (Intéző / Finder) jelöld ki MIND A
+   HÁROM fájlt egyszerre (kattints az elsőre, majd Shift+kattints
+   az utolsóra, hogy mindegyik ki legyen jelölve), és egyszerre
+   húzd be mindet a böngésző ablakába.
+
+5. Várd meg, míg mindegyik feltöltődik (zöld pipa), írj be alulra
+   bármit (pl. "feltöltés"), és kattints a zöld "Commit changes"
+   gombra.
+
+KÉSZ. Ennyi az egész, nincs több lépés.
+
+------------------------------------------------------
+UTÁNA
+------------------------------------------------------
+
+A Vercel magától újratelepíti az oldalt pár percen belül. Nyisd
+meg a honlapodat, és nézd meg, hogy a főoldal jön-e be (nem az
+admin).
+
+Ha esetleg mégsem, csinálj egy képernyőfotót a GitHub repód
+fájllistájáról ÉS a Vercel "Deployments" füléről, és küldd el.
