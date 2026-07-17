@@ -1,0 +1,80 @@
+FELTÖLTÉSI ÚTMUTATÓ – naphíre portál (GitHub + Vercel)
+========================================================
+
+EBBEN A CSOMAGBAN NINCS KÉPFÁJL (nincs banner) – szándékosan, hogy
+biztosan ne legyen több "krix-krax" hiba. A rendezvény úgyis lejárt.
+
+MIT TARTALMAZ A CSOMAG:
+  index.html        <- a főoldal
+  admin.html         <- admin felület
+  settings.json       <- beállítások
+  vercel.json         <- Vercel konfiguráció
+  .gitattributes    <- biztonsági beállítás fájloknak
+  api/hirek.js         <- szerveroldali hírgyűjtő
+  api/rss.js         <- RSS-lekérő
+
+------------------------------------------------------
+LÉPÉSRŐL LÉPÉSRE – GITHUB (weboldalon, kattintgatással)
+------------------------------------------------------
+
+1. Nyisd meg a repódat a github.com oldalon, bejelentkezve.
+
+2. ELŐSZÖR TÖRÖLD A RÉGI FÁJLOKAT, hogy ne maradjon keveredés:
+   - Kattints rá minden meglévő fájlra egyenként
+     (index.html, settings.json, admin.html, banner-regizene*.gif,
+      _headers, functions mappa, ha van)
+   - Jobb felül a szemetes kuka ikonra kattintva töröld őket
+   - Alul a "Commit changes" gombbal mentsd a törlést
+
+3. FELTÖLTÉS:
+   - Kattints a zöld "Add file" gombra (a fájllista tetején)
+   - Válaszd: "Upload files"
+   - EZEN A PONTON: húzd be az ablakba EZ A CSOMAG KICSOMAGOLT
+     TARTALMÁT (magukat a fájlokat, NE a .zip-et magát!)
+     - Tehát: index.html, admin.html, settings.json, vercel.json,
+       .gitattributes külön-külön oda húzva
+     - Az "api" mappához: húzd be az egész "api" mappát úgy, ahogy van
+       (a böngésző felismeri, hogy mappa, és megtartja a struktúrát)
+   - Várd meg, míg mindegyik feltöltődik (zöld pipa jelenik meg mellette)
+   - Alul írd be pl.: "teljes feltöltés újra" és kattints a zöld
+     "Commit changes" gombra
+
+4. FONTOS: soha ne kattints rá egy fájlra, hogy megnyisd
+   SZERKESZTÉSRE, és ne illessz be oda semmit másolással – csak
+   a fenti "Upload files" húzd-és-ejtsd módszert használd.
+
+------------------------------------------------------
+ELLENŐRZÉS A GITHUBON (mielőtt Vercelre mész)
+------------------------------------------------------
+
+Feltöltés után kattints rá az index.html fájlNÉVRE a listában
+(ez megnyitja NÉZETRE, nem szerkesztésre). Ha ott rendes,
+olvasható HTML-kódot látsz (első sor: <!DOCTYPE html>), akkor
+minden rendben van a GitHub oldalán.
+
+Ha itt már krix-krax szöveget látnál, NE menj tovább a Vercelre –
+ismételd meg a 3. lépést, és győződj meg róla, hogy a fájlokat
+tényleg az "Upload files" ablakba húztad, nem valami más módon
+vitted fel.
+
+------------------------------------------------------
+VERCEL OLDALON
+------------------------------------------------------
+
+Ha a GitHub repó megvan és jó, a Vercel projekt (ami a repóra van
+kötve) automatikusan újra fogja telepíteni magát pár percen belül.
+Ezt a Vercel irányítópultján ("Deployments" fül) láthatod, ahogy
+lefut egy új, zöld pipás telepítés.
+
+Semmilyen beállítást NEM kell módosítanod a Vercel oldalán ehhez a
+csomaghoz – nincs benne kép, nincs build-lépés, egyszerű statikus
+fájlok + 2 szerver-funkció (api/hirek.js, api/rss.js).
+
+------------------------------------------------------
+HA MÉGSEM MENNE
+------------------------------------------------------
+
+Csinálj egy képernyőfotót PONTOSAN erről:
+  - a GitHub repód fájllistájáról (hogy lássam, mi van benne)
+  - ha rákattintasz az index.html-re a GitHubon, arról is
+Ez alapján pontosan látni fogom, hol csúszik el valami.

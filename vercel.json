@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    { "source": "/rss", "destination": "/api/rss" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)\\.gif",
+      "headers": [
+        { "key": "Content-Type", "value": "image/gif" },
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
+      ]
+    }
+  ]
+}

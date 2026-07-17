@@ -1,0 +1,17 @@
+{
+  "tagline": "Erdélyi és magyarországi hírek",
+  "banners": {
+    "fejlec": { "kep": "", "link": "" },
+    "tartalom": { "kep": "", "link": "" },
+    "oldalsav": { "kep": "", "link": "" }
+  },
+  "kiemeltTema": {
+    "aktiv": false,
+    "cim": "",
+    "lead": "",
+    "kep": "",
+    "link": "",
+    "forras": ""
+  },
+  "forrasokKi": []
+}
