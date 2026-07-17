@@ -1,51 +1,70 @@
-EGYSZERŰ FELTÖLTÉS – nincs mappa, nincs bonyolítás
+EZ A CSOMAG MÁR AZ AI-FUNKCIÓKAT IS TARTALMAZZA
 ========================================================
 
-EBBEN A CSOMAGBAN CSAK 3 FÁJL VAN, EGY SZINTEN (nincs benne mappa):
-  index.html      <- a főoldal
-  admin.html      <- admin felület
-  settings.json   <- beállítások
+ÚJDONSÁG: Napi AI-összefoglaló + Okos keresés a főoldal tetején.
+Ehhez EGY "api" MAPPA is kell a repóba (a szerver oldali AI-hívások
+miatt – az API-kulcsot SOHA nem tehetjük a látható kódba).
 
-Ennyi. Nem kell "api" mappa, nem kell semmi bonyolult – a honlap
-a híreket közvetlenül a böngészőből tölti be, ahogy eddig is.
-
-------------------------------------------------------
-LÉPÉSRŐL LÉPÉSRE
-------------------------------------------------------
-
-1. ELŐSZÖR TAKARÍTS: nyisd meg a GitHub repódat, és töröld ki
-   MINDEN meglévő fájlt/mappát, ami most ott van (index.html,
-   admin.html, settings.json, hirek.js, download, vercel.json,
-   UTMUTATO.txt – mindent). Egyenként kattints rá, kuka ikon,
-   utána alul "Commit changes".
-
-   (Ha sok fájlt kell törölni és fárasztó egyenként, azt is
-   megteheted, hogy törlöd az egész repót, és csinálsz egy
-   vadonatúj, üres repót ugyanazzal a névvel.)
-
-2. Csomagold ki ezt a zip-et a géped egy mappájába.
-
-3. A GitHub repóban kattints a zöld "Add file" gombra, majd
-   "Upload files".
-
-4. A géped fájlkezelőjében (Intéző / Finder) jelöld ki MIND A
-   HÁROM fájlt egyszerre (kattints az elsőre, majd Shift+kattints
-   az utolsóra, hogy mindegyik ki legyen jelölve), és egyszerre
-   húzd be mindet a böngésző ablakába.
-
-5. Várd meg, míg mindegyik feltöltődik (zöld pipa), írj be alulra
-   bármit (pl. "feltöltés"), és kattints a zöld "Commit changes"
-   gombra.
-
-KÉSZ. Ennyi az egész, nincs több lépés.
+A CSOMAG TARTALMA:
+  index.html          <- főoldal (frissítve, AI-sávval)
+  admin.html
+  settings.json
+  vercel.json
+  .gitattributes
+  api/                 <- EZ ÚJ! Ebben van két fájl:
+    osszefoglalo.js    <- AI napi összefoglaló
+    okoskereses.js     <- AI okos keresés
 
 ------------------------------------------------------
-UTÁNA
+1. LÉPÉS – A RÉGI FÁJLOK TÖRLÉSE
 ------------------------------------------------------
+GitHub repó → jelöld ki és töröld az ÖSSZES jelenlegi fájlt/mappát,
+majd Commit changes.
 
-A Vercel magától újratelepíti az oldalt pár percen belül. Nyisd
-meg a honlapodat, és nézd meg, hogy a főoldal jön-e be (nem az
-admin).
+------------------------------------------------------
+2. LÉPÉS – FELTÖLTÉS (EZ A LÉNYEG, FIGYELJ IDE)
+------------------------------------------------------
+Csomagold ki ezt a zip-et a géped egyik mappájába. Meg fogsz látni
+egy "api" nevű MAPPÁT (ikon: sárga mappa) a többi fájl mellett.
 
-Ha esetleg mégsem, csinálj egy képernyőfotót a GitHub repód
-fájllistájáról ÉS a Vercel "Deployments" füléről, és küldd el.
+A GitHubon: "Add file" → "Upload files".
+
+EZUTÁN:
+  a) Jelöld ki a 5 db SIMA FÁJLT (index.html, admin.html,
+     settings.json, vercel.json, .gitattributes) – ezeket húzd be
+     EGYSZERRE, ahogy eddig szoktad.
+  b) MÁSODIK LÉPÉSKÉNT: magát az "api" MAPPÁT (a mappa-ikont magát,
+     ne nyisd meg, ne menj bele!) húzd be UGYANEBBE az ablakba.
+     A böngésző felismeri, hogy mappa, és automatikusan létrehozza
+     a helyes "api/osszefoglalo.js" és "api/okoskereses.js" utat.
+
+  Ha bizonytalan vagy, csináld két külön Commit-ban: előbb az 5 fájlt
+  töltsd fel és mentsd (Commit changes), utána külön töltsd fel az
+  "api" mappát, és megint Commit changes.
+
+------------------------------------------------------
+3. LÉPÉS – AZ AI API-KULCS BEÁLLÍTÁSA (nem fájlfeltöltés, csak beírás)
+------------------------------------------------------
+1. Nyisd meg a Vercel irányítópultján a projektedet.
+2. Kattints a "Settings" fülre.
+3. A bal oldali menüben "Environment Variables".
+4. Adj hozzá egy új sort:
+     Name:  ANTHROPIC_API_KEY
+     Value: (ide másold be a saját API-kulcsodat)
+5. Mentés, majd a "Deployments" fülön a legfrissebb telepítésnél
+   a "..." menüben válaszd a "Redeploy" opciót, hogy a kulcs
+   érvénybe lépjen.
+
+Enélkül a lépés nélkül az AI-sáv egyszerűen nem fog megjelenni a
+főoldalon (de a többi rész – hírek, design – ettől függetlenül
+zavartalanul működik).
+
+------------------------------------------------------
+MI TÖRTÉNIK, HA VALAMI NEM SIKERÜL?
+------------------------------------------------------
+Ha az "api" mappa feltöltése nem sikerül elsőre, semmi baj: az
+oldal a többi részével (hírek, design) enélkül IS teljesen
+működik – csak az AI-összefoglaló sáv nem fog megjelenni, amíg ezt
+nem pótoljuk. Nem "törik el" tőle semmi más.
+
+Ha elakadsz, küldj egy képernyőfotót a GitHub repód fájllistájáról.

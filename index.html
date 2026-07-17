@@ -906,6 +906,49 @@ footer{background:var(--ej);color:#8f98a8;margin-top:40px}
   .hiba-sav-in{white-space:normal;text-overflow:clip}
 }
 :focus-visible{outline:2px solid var(--parazs);outline-offset:2px}
+/* ---------- AI napi összefoglaló + okos keresés ---------- */
+.ai-sav{
+  margin:24px 0 0;padding:20px 22px;border-radius:var(--radius);
+  background:linear-gradient(155deg,var(--ej) 0%,#182549 100%);
+  box-shadow:var(--arnyek);color:#fff;
+}
+.ai-sav-fej{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.ai-jelvenyk{
+  background:var(--nap);color:var(--ej);font-family:'Space Grotesk',sans-serif;font-weight:800;
+  font-size:11px;letter-spacing:.06em;padding:2px 8px;border-radius:99px;
+}
+.ai-cim{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px}
+.ai-ido{margin-left:auto;font-size:11.5px;color:#8c96b0}
+.ai-szoveg{font-size:14.5px;line-height:1.62;color:#dbe0ef;margin-bottom:16px}
+.ai-kereso{display:flex;gap:8px}
+.ai-kereso input{
+  flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
+  color:#fff;border-radius:99px;padding:10px 16px;font-size:13.5px;font-family:'Inter',sans-serif;
+  outline:none;transition:border-color .15s;
+}
+.ai-kereso input::placeholder{color:#8c96b0}
+.ai-kereso input:focus{border-color:var(--nap)}
+.ai-kereso button{
+  background:var(--nap);color:var(--ej);font-family:'Space Grotesk',sans-serif;font-weight:700;
+  font-size:13px;padding:10px 20px;border-radius:99px;white-space:nowrap;transition:filter .15s;
+}
+.ai-kereso button:hover{filter:brightness(1.08)}
+.ai-kereso button:disabled{opacity:.6;cursor:default}
+.ai-valasz{
+  margin-top:16px;padding:14px 16px;background:rgba(255,255,255,.06);border-radius:var(--radius-sm);
+  font-size:14px;line-height:1.6;color:#e7eaf3;
+}
+.ai-valasz .ai-forrasok{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.ai-valasz .ai-forrasok a{
+  font-size:11.5px;font-weight:600;color:#c1c9de;background:rgba(255,255,255,.08);
+  padding:4px 10px;border-radius:99px;text-decoration:none;transition:background .15s;
+}
+.ai-valasz .ai-forrasok a:hover{background:rgba(255,255,255,.16);color:#fff}
+.ai-betolt{color:#8c96b0;font-size:13px;font-style:italic}
+@media (max-width:640px){
+  .ai-kereso{flex-direction:column}
+  .ai-kereso button{width:100%}
+}
 </style>
 </head>
 <body>
@@ -953,6 +996,19 @@ footer{background:var(--ej);color:#8f98a8;margin-top:40px}
 
 
 <main>
+  <div class="ai-sav" id="ai-sav" hidden>
+    <div class="ai-sav-fej">
+      <span class="ai-jelvenyk">AI</span>
+      <span class="ai-cim">Napi AI-összefoglaló</span>
+      <span class="ai-ido" id="ai-ido"></span>
+    </div>
+    <p class="ai-szoveg" id="ai-szoveg"></p>
+    <form class="ai-kereso" id="ai-kereso-urlap">
+      <input type="text" id="ai-kereso-mezo" placeholder="Kérdezz természetes nyelven: pl. „Mi történt ma Romániában?”" autocomplete="off">
+      <button type="submit">Kérdezem</button>
+    </form>
+    <div class="ai-valasz" id="ai-valasz" hidden></div>
+  </div>
   <div id="tartalom">
     <div class="betoltes">
       <div class="napocska"></div>
@@ -2419,6 +2475,48 @@ document.getElementById('kereso-mezo').addEventListener('input', e => {
     rajzol();
   }, 220); // gépelés közben nem építjük újra minden billentyűre az oldalt
 });
+/* ---------- AI napi összefoglaló + okos keresés ---------- */
+async function aiOsszefoglaloBetolt(){
+  const sav = document.getElementById('ai-sav');
+  try{
+    const v = await fetch('/api/osszefoglalo');
+    const adat = await v.json();
+    if (adat.hiba || !adat.szoveg){ sav.hidden = true; return; } // nincs API-kulcs vagy átmeneti hiba – csendben elrejtjük, a többi funkció zavartalanul működik
+    document.getElementById('ai-szoveg').textContent = adat.szoveg;
+    document.getElementById('ai-ido').textContent = adat.tartalek
+      ? 'korábbi adat' : new Date(adat.ido).toLocaleTimeString('hu-HU', {hour:'2-digit', minute:'2-digit'});
+    sav.hidden = false;
+  }catch(e){ sav.hidden = true; }
+}
+
+document.getElementById('ai-kereso-urlap').addEventListener('submit', async e => {
+  e.preventDefault();
+  const mezo = document.getElementById('ai-kereso-mezo');
+  const kerdes = mezo.value.trim();
+  if (!kerdes) return;
+  const gomb = e.target.querySelector('button');
+  const dobozValasz = document.getElementById('ai-valasz');
+  gomb.disabled = true; gomb.textContent = 'Gondolkodom…';
+  dobozValasz.hidden = false;
+  dobozValasz.innerHTML = '<span class="ai-betolt">A friss hírek alapján keresem a választ…</span>';
+  try{
+    const v = await fetch('/api/okoskereses?q=' + encodeURIComponent(kerdes));
+    const adat = await v.json();
+    if (adat.hiba){
+      dobozValasz.innerHTML = '<span class="ai-betolt">Az okos keresés jelenleg nem elérhető.</span>';
+    } else {
+      const forrasHtml = (adat.forrasok || []).map(h =>
+        `<a href="${biztonsagos(h.link)}" target="_blank" rel="noopener">${biztonsagos(h.forras)}: ${biztonsagos(h.cim.slice(0,40))}${h.cim.length>40?'…':''}</a>`
+      ).join('');
+      dobozValasz.innerHTML = `<div>${biztonsagos(adat.valasz)}</div>` +
+        (forrasHtml ? `<div class="ai-forrasok">${forrasHtml}</div>` : '');
+    }
+  }catch(e){
+    dobozValasz.innerHTML = '<span class="ai-betolt">Hiba történt a keresés közben, próbáld újra.</span>';
+  }
+  gomb.disabled = false; gomb.textContent = 'Kérdezem';
+});
+
 document.getElementById('frissit-gomb').addEventListener('click', () => betoltBeallitasok().then(mindenHirBetolt));
 
 /* ---------- Indítás ---------- */
@@ -2432,12 +2530,14 @@ betoltBeallitasok().then(() => {
   videoSavFrissit();
   blogSavFrissit();
   noilegSavFrissit();
+  aiOsszefoglaloBetolt();
 });
 setInterval(() => {
   betoltBeallitasok().then(mindenHirBetolt);
   videoSavFrissit();
   blogSavFrissit();
   noilegSavFrissit();
+  aiOsszefoglaloBetolt();
 }, 5 * 60 * 1000); // 5 percenként automatikus frissítés
 </script>
 </body>
