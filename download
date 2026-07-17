@@ -136,6 +136,19 @@ function stemek(szoveg){
 }
 function kozos(a, b){ let n = 0; for (const x of a) if (b.has(x)) n++; return n; }
 
+/* Tulajdonnevek (személy-, hely-, szervezetnevek) kigyűjtése a cím EREDETI –
+   tehát nem kisbetűsített – szövegéből. Ez a valódi "horgony" egy témánál:
+   két hír csak akkor tartozhat ugyanabba a témába, ha van közös tulajdonnevük
+   (pl. mindkettő "Szijjártó"-ról vagy "Trump"-ról szól) – NEM elég, ha csak
+   néhány véletlenül egyező, általános szó van bennük (ez okozta korábban,
+   hogy teljesen független hírek – pl. Trump és egy erdélyi hír – összekeveredtek). */
+function entitasok(cim){
+  const szavak = cim.match(/[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]{2,}/g) || [];
+  return new Set(szavak.filter((sz, i) => i > 0 || szavak.length === 1) // a mondatkezdő nagybetűt kihagyjuk, kivéve ha az egyetlen szó
+    .map(sz => sz.toLowerCase())
+    .filter(sz => !STOP.has(sz)));
+}
+
 function temaValaszt(hirek, minForras, oraAblak){
   const most = Date.now();
   const friss = hirek
@@ -143,6 +156,9 @@ function temaValaszt(hirek, minForras, oraAblak){
     .slice(0, 130);
   if (friss.length < 4) return null;
   const keszlet = friss.map(h => stemek(h.cim + ' ' + h.lead.slice(0, 140)));
+  const entkeszlet = friss.map(h => entitasok(h.cim));
+  // két hír csak akkor rokon, ha van közös tulajdonneve ÉS legalább 2 közös szótöve is
+  const rokon = (i, j) => kozos(entkeszlet[i], entkeszlet[j]) >= 1 && kozos(keszlet[i], keszlet[j]) >= 2;
 
   let horgony = -1, legjobb = 0;
   for (let i = 0; i < friss.length; i++){
@@ -150,7 +166,7 @@ function temaValaszt(hirek, minForras, oraAblak){
     let talalat = 0;
     for (let j = 0; j < friss.length; j++){
       if (i === j) continue;
-      if (kozos(keszlet[i], keszlet[j]) >= 2){
+      if (rokon(i, j)){
         talalat++;
         if (friss[j].forras !== friss[i].forras) masok.add(friss[j].forras);
       }
@@ -166,17 +182,18 @@ function temaValaszt(hirek, minForras, oraAblak){
   }
   if (horgony < 0) return null;
 
-  const mag = new Set();
   const jeloltek = [];
   for (let j = 0; j < friss.length; j++)
-    if (j !== horgony && kozos(keszlet[horgony], keszlet[j]) >= 2) jeloltek.push(j);
-  for (const s of keszlet[horgony]){
+    if (j !== horgony && rokon(horgony, j)) jeloltek.push(j);
+  // a "mag" tulajdonnév: amelyik a horgonnyal ÉS a jelöltek többségével is közös –
+  // ez zárja ki, hogy egy mellékszereplő neve miatt idegen hír kerüljön a csoportba
+  const magEnt = new Set();
+  for (const e of entkeszlet[horgony]){
     let db = 0;
-    for (const j of jeloltek) if (keszlet[j].has(s)) db++;
-    if (db >= 2) mag.add(s);
+    for (const j of jeloltek) if (entkeszlet[j].has(e)) db++;
+    if (db >= 1) magEnt.add(e);
   }
-  const kulcs = mag.size >= 2 ? mag : keszlet[horgony];
-  const csoport = friss.filter((h, j) => j === horgony || kozos(kulcs, keszlet[j]) >= 2);
+  const csoport = friss.filter((h, j) => j === horgony || (magEnt.size ? kozos(magEnt, entkeszlet[j]) >= 1 : rokon(horgony, j)));
   const forrasDb = new Set(csoport.map(h => h.forras)).size;
   if (forrasDb < minForras) return null;
 
